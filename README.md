@@ -97,11 +97,11 @@ python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_a -
 ```
 For training, we provide training code for ordinary model (`main.py`) and quantized model (`quant_main.py`). For example, to train the ordinary model, run
 ```
-python main.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_512_new1_1 --dataset pascal --head_conv 64 --input_res 512 --num_epochs 70 --lr_step 45,60 --gpu 0
+python main.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_512_1 --dataset pascal --head_conv 64 --input_res 512 --num_epochs 90 --lr_step 50,70 --gpu 0
 ```
 and to train the quantized model, run
 ```
-python quant_main.py ctdet --arch shufflenetv2 --exp_id coco_shufflenetv2_new12_1 --head_conv 64 --lr 5e-4 --batch_size 128 --input_res 512 --num_epochs 270 --lr_step 180,210 --gpu 12,13,14,15 --resume
+python quant_main.py ctdet --arch shufflenetv2 --exp_id coco_shufflenetv2_512_1 --head_conv 64 --lr 5e-4 --batch_size 128 --input_res 512 --num_epochs 270 --lr_step 180,210 --gpu 12,13,14,15 --resume
 ```
 <!-- Please double check quantized training command -->
 ## License
