@@ -1,0 +1,109 @@
+# CoDeNet
+This is the official implementation for CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs (FPGA 2021 Oral)
+
+## Introduction
+CoDeNet is an object detection framework with deformable convolution designed for efficient deployment on FPGAs.
+## Main Results
+This is our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
+|Detector	 |Resolution	|DownSample		|Weights|Activations|Model Size	   |MACs	  |AP50	|
+|------------|-----------|---------------|-------|-----------|--------------|-------|---------|		
+|Tiny-YOLO				|416x416	|MaxPool 		|32-bit	|32-bit		|60.5 MB 	   |3.49 G   |57.1	|
+|CoDeNet1x (config a)	|256x256	|Stride4		|4-bit	|8-bit		|0.76 MB 	   |0.29 G   |51.1	|
+|CoDeNet1x (config b)	|256x256	|Stride2+MaxPool|4-bit	|8-bit		|0.76 MB	   |0.29 G   |55.1	|
+|CoDeNet1x (config c)	|512x512	|Stride4		|4-bit	|8-bit		|0.76 MB	   |1.14 G   |61.7	|
+|CoDeNet1x (config d)	|512x512	|Stride4		|4-bit	|8-bit		|2.90 MB	   |3.54 G   |67.1	|
+|CoDeNet1x (config e)	|512x512	|Stride2+MaxPool|4-bit	|8-bit		|2.90 MB	   |3.58 G   |69.7	|
+## Environment
+The code is developed using python 3.6. The results are produced on Ultra96 and also verified on NVIDIA K80 GPU cards. Other platforms or GPU cards are not fully tested.
+## Quick Start
+### Installation
+1. First make a directory for CoDeNet, clone this repo and rename it `src`
+```
+mkdir CoDeNet; cd CoDeNet
+git clone https://github.com/Zhen-Dong/CoDeNet.git
+mv CoDeNet src
+```
+2. Build a new virtual environment with python3.6.9 and install the requirements
+```
+pip install -r requirements.txt
+```
+3. Build the external library
+```
+cd lib/models/external
+make
+```
+Note that whenever one moves to a new python environment or a new hardware, the external lib should be rebuilt.
+
+4. Create directories for experiments, download our pretrained models from [google drive](https://drive.google.com/file/d/1kxw2zZmko5MP3RQlUf6kiapHrAKqIykD/view?usp=sharing) and put them under corresponding directories. The directories should look like this.
+```
+CoDeNet
+|-- src
+`-- exp
+    `-- ctdet
+        |-- pascal_shufflenetv2_config_a
+        |   `-- model_last.pth
+        |-- pascal_shufflenetv2_config_b
+        |   `-- model_last.pth
+        |-- pascal_shufflenetv2_config_c
+        |   `-- model_last.pth
+        |-- pascal_shufflenetv2_config_d
+        |   `-- model_last.pth
+        `-- pascal_shufflenetv2_config_e
+            `-- model_last.pth
+```
+5. Prepare data
+ - For COCO data, download the images (train 2017, test 2017, val 2017) and the annotation files (2017 train/val and test image info) from the [MS COCO dataset](http://cocodataset.org/#download).
+ - For Pascal data, run the shell script `tools/get_pascal_voc.sh`. This includes downloading the images, downloading the annotations and merging the two annotation files into one json.
+ - Put the data directories under `CoDeNet/data`, and make them look like this.
+```
+CoDeNet
+|-- src
+|-- exp
+`-- data
+   |-- coco
+   |   |-- annotations
+   |   `-- images
+   |       |-- test2017
+   |       |-- train2017
+   |       `-- val2017
+   `-- voc
+       |-- annotations
+       |-- images
+       `-- VOCdevkit
+```
+
+### Training and Testing
+<!-- Note: quantized model weights name problem? -->
+For testing, use the pretrained models we provide for 5 configurations.
+To test with config a:
+```
+python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_a --dataset pascal --input_res 256 --resume --flip_test --gpu 0
+```
+To test with config b:
+```
+python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_b --dataset pascal --input_res 256 --resume --flip_test --gpu 0 --maxpool
+```
+To test with config c:
+```
+python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_c --dataset pascal --input_res 512 --resume --flip_test --gpu 0
+```
+To test with config d:
+```
+python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_d --dataset pascal --input_res 512 --resume --flip_test --gpu 0 --w2
+```
+To test with config e:
+```
+python test.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_config_a --dataset pascal --input_res 512 --resume --flip_test --gpu 0 --w2 --maxpool
+```
+For training, we provide training code for ordinary model (`main.py`) and quantized model (`quant_main.py`). For example, to train the ordinary model, run
+```
+python main.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_512_new1_1 --dataset pascal --head_conv 64 --input_res 512 --num_epochs 70 --lr_step 45,60 --gpu 0
+```
+and to train the quantized model, run
+```
+python quant_main.py ctdet --arch shufflenetv2 --exp_id coco_shufflenetv2_new12_1 --head_conv 64 --lr 5e-4 --batch_size 128 --input_res 512 --num_epochs 270 --lr_step 180,210 --gpu 12,13,14,15 --resume
+```
+<!-- Please double check quantized training command -->
+## License
+CoDeNet is released under the [MIT license](https://github.com/hikaru-nara/CoDeNet_init/blob/master/LICENSE).
+<!-- The license should be applied -->
