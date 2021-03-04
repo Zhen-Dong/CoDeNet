@@ -105,5 +105,5 @@ python quant_main.py ctdet --arch shufflenetv2 --exp_id coco_shufflenetv2_512_1 
 ```
 <!-- Please double check quantized training command -->
 ## License
-CoDeNet is released under the [MIT license](https://github.com/hikaru-nara/CoDeNet_init/blob/master/LICENSE).
+CoDeNet is released under the [MIT license](https://github.com/Zhen-Dong/CoDeNet/blob/main/LICENSE).
 <!-- The license should be applied -->
