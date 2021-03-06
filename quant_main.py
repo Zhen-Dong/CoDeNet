@@ -18,7 +18,6 @@ from portable_quantizer import quantize_shufflenetv2_dcn
 def main(opt):
   torch.manual_seed(opt.seed)
   torch.backends.cudnn.benchmark = False
-  # torch.backends.cudnn.benchmark = not opt.not_cuda_benchmark and not opt.test
   Dataset = get_dataset(opt.dataset, opt.task)
   opt = opts().update_dataset_info_and_set_heads(opt, Dataset)
   print(opt)
@@ -30,7 +29,7 @@ def main(opt):
   print(opt.device)
 
   print('Creating model...')
-  model = create_model(opt.arch, opt.heads, opt.head_conv, opt.deform_conv, w2=opt.w2, maxpool=opt.maxpool)
+  model = create_model(opt.arch, opt.heads, opt.head_conv)
 
   optimizer = torch.optim.Adam(model.parameters(), opt.lr)
   start_epoch = 0
@@ -44,13 +43,6 @@ def main(opt):
                             wt_quant_mode='symmetric', act_quant_mode='asymmetric',
                             wt_per_channel=True, wt_percentile=True, act_percentile=False, deform_backbone=False,
                             w2=opt.w2, maxpool=opt.maxpool)
-  # quantized_model = quantize_sfl_dcn(model, quant_conv=4, quant_bn=None, quant_act=4,
-  #                           quant_mode='symmetric', wt_per_channel=True, wt_percentile=False, act_percentile=False)
-  # print(quantized_model)
-
-  # if opt.load_model != '':
-  #   model, optimizer, start_epoch = load_model(
-  #     model, opt.load_model, optimizer, opt.resume, opt.lr, opt.lr_step)
 
   Trainer = train_factory[opt.task]
   trainer = Trainer(opt, model, optimizer)
@@ -64,12 +56,6 @@ def main(opt):
       num_workers=1,
       pin_memory=True
   )
-
-  # if opt.test:
-  # # if True:
-  #   _, preds = trainer.val(0, val_loader)
-  #   val_loader.dataset.run_eval(preds, opt.save_dir)
-  #   return
 
   train_loader = torch.utils.data.DataLoader(
       Dataset(opt, 'train'),

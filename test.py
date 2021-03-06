@@ -12,7 +12,7 @@ import time
 from progress.bar import Bar
 import torch
 
-from external.nms import soft_nms
+# from external.nms import soft_nms
 from opts import opts
 from logger import Logger
 from utils.utils import AverageMeter
@@ -82,16 +82,19 @@ def prefetch_test(opt):
 def test(opt):
   os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
 
+  # configs
   Dataset = dataset_factory[opt.dataset]
   opt = opts().update_dataset_info_and_set_heads(opt, Dataset)
   print(opt)
   Logger(opt)
   Detector = detector_factory[opt.task]
   
+  # build dataset and detector
   split = 'val' if not opt.trainval else 'test'
   dataset = Dataset(opt, split)
   detector = Detector(opt)
 
+  # start testing
   results = {}
   num_iters = len(dataset)
   bar = Bar('{}'.format(opt.exp_id), max=num_iters)

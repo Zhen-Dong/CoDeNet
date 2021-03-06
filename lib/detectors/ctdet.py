@@ -9,10 +9,10 @@ import time
 import torch
 
 try:
-  from external.nms import soft_nms
+  from models.external.nms import soft_nms
 except:
   print('NMS not imported! If you need it,'
-        ' do \n cd $CenterNet_ROOT/src/lib/external \n make')
+        ' do \n cd src/lib/external \n make')
 from models.decode import ctdet_decode
 from models.utils import flip_tensor
 from utils.image import get_affine_transform

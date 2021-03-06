@@ -16,7 +16,6 @@ import logging
 import torch
 import torch.nn as nn
 
-# from .DCNv2.dcn_v2 import DCN
 from pytorchcv.model_provider import get_model as ptcv_get_model
 from thop import profile
 from ..external.modules import dcn_deform_conv
@@ -57,9 +56,7 @@ def fill_up_weights(up):
 def fill_fc_weights(layers):
     for m in layers.modules():
         if isinstance(m, nn.Conv2d):
-            # nn.init.normal_(m.weight, std=0.001)
             torch.nn.init.kaiming_normal_(m.weight.data, nonlinearity='relu')
-            # torch.nn.init.xavier_normal_(m.weight.data)
             if m.bias is not None:
                 nn.init.constant_(m.bias, 0)
 
@@ -249,26 +246,18 @@ class PoseShuffleNetV2(nn.Module):
         # used for deconv layers
         self.deconv_layers = self._make_deconv_layer(
             num_layers=3,
-            # num_filters=[512, 256, 128],
-            # num_filters=[256, 128, 128],
             num_filters=[256, 128, 64],
-            num_kernels=[3, 3, 3],
-            # num_kernels=[4, 4, 4],
+            num_kernels=[3, 3, 3]
         )
 
         for head in self.heads:
             classes = self.heads[head]
             if head_conv > 0:
                 fc = nn.Sequential(
-                    # nn.Conv2d(64, head_conv, kernel_size=3, padding=1, bias=True),
-
-                    # BaseNode(64, head_conv, stride=1, conv_kernel=nn.Conv2d),
-
-                    # nn.Conv2d(128, head_conv, 1, 1, 0, bias=False),
                     nn.Conv2d(64, head_conv, 1, 1, 0, bias=False),
                     nn.BatchNorm2d(head_conv, momentum=BN_MOMENTUM),
                     nn.ReLU(inplace=True),
-                    # dw
+                    # depth-wise conv
                     nn.Conv2d(head_conv, head_conv, 3, 1, 1, groups=head_conv, bias=False),
                     nn.BatchNorm2d(head_conv, momentum=BN_MOMENTUM),
                     # this part can be combined with next pw linear
@@ -315,125 +304,24 @@ class PoseShuffleNetV2(nn.Module):
 
         layers = []
         if self.w2 == True:
-            # deconv_planes = [2048, 512, 256]
-            # deconv_planes = [2048, 256, 128]
             deconv_planes = [2153, 256, 128]
         else:
             deconv_planes = [1024, 256, 128]
-            # deconv_planes = [464, 256, 128]
         for i in range(num_layers):
             kernel, padding, output_padding = \
                 self._get_deconv_cfg(num_kernels[i], i)
 
             planes = num_filters[i]
-            # fc = nn.Conv2d(deconv_planes[i], planes, 3, 1, 1, bias=False)
-
-            # hidden_state = 64
-            # fc = nn.Sequential(
-            #     # pw
-            #     nn.Conv2d(deconv_planes[i], hidden_state, 1, 1, 0, bias=False),
-            #     nn.BatchNorm2d(hidden_state, momentum=BN_MOMENTUM),
-            #     nn.ReLU(inplace=True),
-            #     # dw
-            #     nn.Conv2d(hidden_state, hidden_state, 3, 1, 1, groups=hidden_state, bias=False),
-            #     nn.BatchNorm2d(hidden_state, momentum=BN_MOMENTUM),
-            #     # pw-linear
-            #     nn.Conv2d(hidden_state, planes, 1, 1, 0, bias=False)
-            # )
-
-            # fc = dcn_deform_conv.ModulatedDeformConvPack(
-            #         deconv_planes[i], planes, 3, 1, 1, bias=False)
-
-            # fc = dcn_deform_conv.DeformConvWithOffsetScaleBoundPositive(
-            #     deconv_planes[i], planes, 3, 1, 1, groups=planes, bias=False, BN_MOMENTUM=BN_MOMENTUM)
-
-            # fc = dcn_deform_conv.DeformConvWithOffsetScaleBoundPositive(
-            #     deconv_planes[i], planes, 3, 1, 1, groups=planes, bias=False,
-            #                                        hidden_state=planes, BN_MOMENTUM=BN_MOMENTUM)
-
+            
             fc = dcn_deform_conv.DeformConvWithOffsetScaleBoundPositive(
                 deconv_planes[i], planes, 3, 1, 1, groups=planes, bias=False, hidden_state=128, BN_MOMENTUM=BN_MOMENTUM)
 
-            # fc = nn.Conv2d(self.inplanes, planes,
-            #         kernel_size=3, stride=1,
-            #         padding=1, dilation=1, bias=False)
-
-            # fill_fc_weights(fc)
-
-            # up = nn.ConvTranspose2d(
-            #         in_channels=planes,
-            #         out_channels=planes,
-            #         kernel_size=kernel,
-            #         stride=2,
-            #         padding=padding,
-            #         output_padding=output_padding,
-            #         bias=self.deconv_with_bias)
-            # up = nn.ConvTranspose2d(
-            #     in_channels=planes,
-            #     out_channels=planes,
-            #     kernel_size=kernel,
-            #     stride=2,
-            #     groups=planes,
-            #     padding=padding,
-            #     output_padding=output_padding,
-            #     bias=self.deconv_with_bias)
-            # When kernel size = 4, we have output_padding = 0, padding = 1,
-            # so that H_out = 2 * H_in, W_out = 2 * W_in,
-            # When kernel size = 3, we have output_padding = 1, padding = 1,
-            # so that H_out = 2 * H_in, W_out = 2 * W_in,
-            # it should be noted that the channel number is not changed
-
             up = nn.Upsample(size=None, scale_factor=2, mode='nearest', align_corners=None)
-
-            # up = nn.Upsample(size=None, scale_factor=2, mode='bilinear', align_corners=None)
-
-            # hidden_state_up = 2 * planes
-            # up = nn.Sequential(
-            #     # pw
-            #     nn.Conv2d(planes, hidden_state_up, 1, 1, 0, bias=False),
-            #     nn.BatchNorm2d(hidden_state_up, momentum=BN_MOMENTUM),
-            #     nn.ReLU(inplace=True),
-            #     # dw
-            #     nn.ConvTranspose2d(
-            #         in_channels=hidden_state_up,
-            #         out_channels=hidden_state_up,
-            #         kernel_size=kernel,
-            #         stride=2,
-            #         groups=hidden_state_up,
-            #         padding=padding,
-            #         output_padding=output_padding,
-            #         bias=self.deconv_with_bias),
-            #     nn.BatchNorm2d(hidden_state_up, momentum=BN_MOMENTUM),
-            #     # pw-linear
-            #     nn.Conv2d(hidden_state_up, planes, 1, 1, 0, bias=False)
-            # )
-            # fill_fc_weights(up)
-            # for m in up.modules():
-            #     if isinstance(m, nn.ConvTranspose2d):
-            #         fill_up_weights(m)
-
-            # hidden_state_up = 2 * planes
-            # up = nn.Sequential(
-            #     # pw
-            #     nn.Conv2d(planes, hidden_state_up, 1, 1, 0, bias=False),
-            #     nn.BatchNorm2d(hidden_state_up, momentum=BN_MOMENTUM),
-            #     nn.ReLU(inplace=True),
-            #     # dw
-            #     nn.Upsample(size=None, scale_factor=2, mode='nearest', align_corners=None),
-            #     # pw-linear
-            #     nn.Conv2d(hidden_state_up, planes, 1, 1, 0, bias=False)
-            # )
-            # fill_fc_weights(up)
-
-            # fill_up_weights(up)
 
             layers.append(fc)
             layers.append(nn.BatchNorm2d(planes, momentum=BN_MOMENTUM))
             layers.append(nn.ReLU(inplace=True))
             layers.append(up)
-
-            # layers.append(nn.BatchNorm2d(planes, momentum=BN_MOMENTUM))
-            # layers.append(nn.ReLU(inplace=True))
 
             self.inplanes = planes
 
@@ -446,9 +334,8 @@ class PoseShuffleNetV2(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        # print(x.is_cuda)
         x = self.deconv_layers(x)
-        # print(x.shape)
+
         # the shape of x should be [16, 64, 128, 128]
         ret = {}
         # we set ctdet on, with self.heads = {'hm': 80, 'wh': 2, 'reg': 2}
@@ -456,43 +343,9 @@ class PoseShuffleNetV2(nn.Module):
         # should be [16, 80, 128, 128], [16, 2, 128, 128], [16, 2, 128, 128]
         for head in self.heads:
             ret[head] = self.__getattr__(head)(x)
-            # print(ret[head].shape)
         return [ret]
 
     def init_weights(self, num_layers):
-        # pretrained model for ShuffleNetV2 BaseNodes
-        # url = model_urls['shufflenetv2_x1.0']
-        # pretrained_state_dict = model_zoo.load_url(url)
-        # print('=> loading pretrained model {}'.format(url))
-        #
-        # modified_dict = {}
-        # for key, value in pretrained_state_dict.items():
-        #     modified_key = key.replace("stage2", "layer1") \
-        #         .replace("stage3", "layer2").replace("stage4", "layer3") \
-        #         .replace("branch", "b").replace("conv1", "layer0").replace("conv5", "layer4")
-        #     modified_dict[modified_key] = value
-        # print(self.load_state_dict(modified_dict, strict=False))
-
-        # if self.w2 == True:
-        #     # self-defined pretrained model for Wide ShuffleNetV2 BaseNodes
-        #     pretrained_state_dict = torch.load('/rscratch/'
-        #         'zhendong/yaohuic/CenterNet/src/pretrain_logs/shufflenetv2_w2_512_trial1/model_best.pth.tar')['state_dict']
-        #     print('=> loading self-defined wide ShuffleNetV2 pretrained model')
-        # else:
-        #     # self-defined pretrained model for ShuffleNetV2 BaseNodes
-        #     pretrained_state_dict = torch.load('/rscratch/'
-        #         'zhendong/yaohuic/CenterNet/src/pretrain_logs/shufflenetv2_1_512_trial1/model_best.pth.tar')['state_dict']
-        #     print('=> loading self-defined pretrained model')
-        #
-        # modified_dict = {}
-        # for key, value in pretrained_state_dict.items():
-        #     modified_key = key.replace('module.', '').replace("stage2", "layer1") \
-        #         .replace("stage3", "layer2").replace("stage4", "layer3") \
-        #         .replace("branch", "b").replace("conv1", "layer0").replace("conv5", "layer4")
-        #     modified_dict[modified_key] = value
-        # print(self.load_state_dict(modified_dict, strict=False))
-
-
         # pretrained PyTorchCV model for ShuffleNetV2 BaseNodes
         if self.w2 == True:
             model_name = "shufflenetv2_w2"
@@ -516,37 +369,16 @@ class PoseShuffleNetV2(nn.Module):
                 .replace("features.final_block.conv", "layer4.0").replace("features.final_block.bn", "layer4.1") \
                 .replace("features.init_block.conv.conv", "layer0.0").replace("features.init_block.conv.bn", "layer0.1")
             modified_dict[modified_key] = value
-        print(self.load_state_dict(modified_dict, strict=False))
-
-        # initialization for the ShuffleNet backbone
-        # print('=> init stage0,1,2,3 weights from normal distribution')
-        # for name, m in self.layer0.named_modules():
-        #     if isinstance(m, nn.BatchNorm2d):
-        #         nn.init.constant_(m.weight, 1)
-        #         nn.init.constant_(m.bias, 0)
-        # for name, m in self.layer1.named_modules():
-        #     if isinstance(m, nn.BatchNorm2d):
-        #         nn.init.constant_(m.weight, 1)
-        #         nn.init.constant_(m.bias, 0)
-        # for name, m in self.layer2.named_modules():
-        #     if isinstance(m, nn.BatchNorm2d):
-        #         nn.init.constant_(m.weight, 1)
-        #         nn.init.constant_(m.bias, 0)
-        # for name, m in self.layer3.named_modules():
-        #     if isinstance(m, nn.BatchNorm2d):
-        #         nn.init.constant_(m.weight, 1)
-        #         nn.init.constant_(m.bias, 0)
 
 
 def get_shufflenetv2_dcn(num_layers, heads, head_conv=64, deform_conv='ModulatedDeformConvPack', w2=False, maxpool=False):
-    # this is a placeholder, modules for ShuffleNetV2 are hardcoded in the model.
+    # this is a placeholder, modules for ShuffleNetV2 are hardcoded in the model. ?
     block_class, layers = (BaseNode, [3, 7, 3, 1])
 
     model = PoseShuffleNetV2(block_class, layers, heads, head_conv=head_conv, w2=w2, deform=False, maxpool=maxpool)
     model.init_weights(num_layers)
 
     input = torch.randn(1, 3, 512, 512).cuda()
-    print(input.is_cuda)
 
     macs, params = profile(model.cuda(), inputs=(input,))
     print('MACs:', macs, 'Parameters:', params)

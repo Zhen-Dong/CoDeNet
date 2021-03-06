@@ -69,6 +69,8 @@ class opts(object):
                                   '64 for resnets and 256 for dla.')
     self.parser.add_argument('--down_ratio', type=int, default=4,
                              help='output stride. Currently only supports 4.')
+    self.parser.add_argument('--deform_conv', type=str, default='DeformConvPack', 
+                             help='choose the deform conv func for decoder')
 
     # input
     self.parser.add_argument('--input_res', type=int, default=-1, 
@@ -223,6 +225,13 @@ class opts(object):
                              help='use ground truth human joint local offset.')
     self.parser.add_argument('--eval_oracle_dep', action='store_true', 
                              help='use ground truth depth.')
+
+    # network architecture
+    self.parser.add_argument('--w2', action='store_true',
+                             help='Whether to double the channel.')
+    self.parser.add_argument('--maxpool', action='store_true',
+                             help='Whether to use maxpool instead of stride 4.')
+
 
   def parse(self, args=''):
     if args == '':
