@@ -13,7 +13,6 @@
 # Written by Yuwen Xiong
 # ---------------------------------------------------------------------------
 
-
 import math
 import torch
 import torch.nn as nn
@@ -91,21 +90,6 @@ class DeformConvWithOffsetBound(nn.Module):
 
     def forward(self, x):
         return self.conv(x, self.conv_bound(self.conv_offset(x)))
-
-
-# class DeformConvWithOffsetBoundPositive(nn.Module):
-    
-#     def __init__(self, in_channels, out_channels, offset_bound=8, kernel_size=3, stride=1, padding=1, dilation=1, groups=1, deformable_groups=1, bias=False):
-#         super(DeformConvWithOffsetBoundPositive, self).__init__()
-#         self.conv_offset = nn.Conv2d(in_channels, kernel_size * kernel_size * 2 * deformable_groups, kernel_size=3, stride=1, padding=1, bias=True)
-#         self.conv_offset.weight.data.zero_()
-#         self.conv_offset.bias.data.zero_()
-#         self.conv_bound = torch.nn.Hardtanh(min_val=0, max_val=offset_bound, inplace=True)
-#         self.conv = DeformConv(in_channels, out_channels, kernel_size=kernel_size, stride=stride,
-#                                padding=padding, dilation=dilation, groups=groups, deformable_groups=deformable_groups, bias=bias)
-
-#     def forward(self, x):
-#         return self.conv(x, self.conv_bound(self.conv_offset(x)))
 
 
 class DeformConvWithOffsetBoundMinMax(nn.Module):

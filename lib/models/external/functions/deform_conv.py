@@ -13,12 +13,12 @@
 # Written by Yuwen Xiong
 # ---------------------------------------------------------------------------
 
-
 import math
 import numpy as np
 import torch
 from torch.autograd import Function, Variable
 from .._ext.deform_conv import deform_conv_cuda
+
 
 class DeformConvFunction(Function):
 
