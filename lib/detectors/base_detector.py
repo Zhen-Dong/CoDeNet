@@ -12,6 +12,9 @@ from models.model import create_model, load_model
 from utils.image import get_affine_transform
 from utils.debugger import Debugger
 
+import sys
+sys.path.insert(0, "../../")
+from portable_quantizer import quantize_shufflenetv2_dcn
 
 class BaseDetector(object):
   def __init__(self, opt):
@@ -26,7 +29,7 @@ class BaseDetector(object):
     if opt.resume_quantize:
       quantize_shufflenetv2_dcn(self.model, quant_conv=4, quant_bn=None, quant_act=8,
                               wt_quant_mode='symmetric', act_quant_mode='asymmetric',
-                              wt_per_channel=True, wt_percentile=True, act_percentile=False, deform_backbone=False,
+                              wt_per_channel=True, wt_percentile=opt.wt_percentile, act_percentile=False, deform_backbone=False,
                               w2=opt.w2, maxpool=opt.maxpool)
 
     self.model = load_model(self.model, opt.load_model)

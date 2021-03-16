@@ -233,7 +233,10 @@ class opts(object):
                              help='Whether to use maxpool instead of stride 4.')
     self.parser.add_argument('--resume-quantize', action='store_true',
                              help='If true, resume a quantized model from checkpoint. '
-                                  'Otherwise resume a normal model')
+                                  'Otherwise resume a normal model.')
+    self.parser.add_argument('--wt-percentile', action='store_true',
+                             help='If true, apply percentile range for weight quantization. '
+                                  'Note that this arg should be kept the same for training and testing.')
 
 
   def parse(self, args=''):
