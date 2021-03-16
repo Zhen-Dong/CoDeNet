@@ -15,6 +15,7 @@ import numpy as np
 
 BatchNorm = nn.BatchNorm2d
 
+
 def get_model_url(data='imagenet', name='dla34', hash='ba72cf86'):
     return join('http://dl.yf.io/dla/models', data, '{}-{}.pth'.format(name, hash))
 

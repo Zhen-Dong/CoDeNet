@@ -5,7 +5,6 @@
 # Licensed under the BSD 3-Clause License
 # ------------------------------------------------------------------------------
 
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,6 +12,7 @@ from __future__ import print_function
 import numpy as np
 import torch
 import torch.nn as nn
+
 
 class convolution(nn.Module):
     def __init__(self, k, inp_dim, out_dim, stride=1, with_bn=True):
@@ -29,6 +29,7 @@ class convolution(nn.Module):
         relu = self.relu(bn)
         return relu
 
+
 class fully_connected(nn.Module):
     def __init__(self, inp_dim, out_dim, with_bn=True):
         super(fully_connected, self).__init__()
@@ -44,6 +45,7 @@ class fully_connected(nn.Module):
         bn     = self.bn(linear) if self.with_bn else linear
         relu   = self.relu(bn)
         return relu
+
 
 class residual(nn.Module):
     def __init__(self, k, inp_dim, out_dim, stride=1, with_bn=True):
@@ -73,11 +75,13 @@ class residual(nn.Module):
         skip  = self.skip(x)
         return self.relu(bn2 + skip)
 
+
 def make_layer(k, inp_dim, out_dim, modules, layer=convolution, **kwargs):
     layers = [layer(k, inp_dim, out_dim, **kwargs)]
     for _ in range(1, modules):
         layers.append(layer(k, out_dim, out_dim, **kwargs))
     return nn.Sequential(*layers)
+
 
 def make_layer_revr(k, inp_dim, out_dim, modules, layer=convolution, **kwargs):
     layers = []
@@ -86,9 +90,11 @@ def make_layer_revr(k, inp_dim, out_dim, modules, layer=convolution, **kwargs):
     layers.append(layer(k, inp_dim, out_dim, **kwargs))
     return nn.Sequential(*layers)
 
+
 class MergeUp(nn.Module):
     def forward(self, up1, up2):
         return up1 + up2
+
 
 def make_merge_layer(dim):
     return MergeUp()
@@ -96,11 +102,14 @@ def make_merge_layer(dim):
 # def make_pool_layer(dim):
 #     return nn.MaxPool2d(kernel_size=2, stride=2)
 
+
 def make_pool_layer(dim):
     return nn.Sequential()
 
+
 def make_unpool_layer(dim):
     return nn.Upsample(scale_factor=2)
+
 
 def make_kp_layer(cnv_dim, curr_dim, out_dim):
     return nn.Sequential(
@@ -108,11 +117,14 @@ def make_kp_layer(cnv_dim, curr_dim, out_dim):
         nn.Conv2d(curr_dim, out_dim, (1, 1))
     )
 
+
 def make_inter_layer(dim):
     return residual(3, dim, dim)
 
+
 def make_cnv_layer(inp_dim, out_dim):
     return convolution(3, inp_dim, out_dim)
+
 
 class kp_module(nn.Module):
     def __init__(
@@ -172,6 +184,7 @@ class kp_module(nn.Module):
         low3 = self.low3(low2)
         up2  = self.up2(low3)
         return self.merge(up1, up2)
+
 
 class exkp(nn.Module):
     def __init__(
@@ -294,6 +307,7 @@ class HourglassNet(exkp):
             make_hg_layer=make_hg_layer,
             kp_layer=residual, cnv_dim=256
         )
+
 
 def get_large_hourglass_net(num_layers, heads, head_conv):
   model = HourglassNet(heads, 2)

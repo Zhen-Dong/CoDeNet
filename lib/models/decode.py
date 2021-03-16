@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from .utils import _gather_feat, _transpose_and_gather_feat
 
+
 def _nms(heat, kernel=3):
     pad = (kernel - 1) // 2
 
@@ -13,6 +14,7 @@ def _nms(heat, kernel=3):
         heat, (kernel, kernel), stride=1, padding=pad)
     keep = (hmax == heat).float()
     return heat * keep
+
 
 def _left_aggregate(heat):
     '''
@@ -27,6 +29,7 @@ def _left_aggregate(heat):
         ret[i] += ret[i - 1] * inds.float()
     return (ret - heat).transpose(1, 0).reshape(shape) 
 
+
 def _right_aggregate(heat):
     '''
         heat: batchsize x channels x h x w
@@ -39,6 +42,7 @@ def _right_aggregate(heat):
         inds = (heat[i] >= heat[i +1])
         ret[i] += ret[i + 1] * inds.float()
     return (ret - heat).transpose(1, 0).reshape(shape) 
+
 
 def _top_aggregate(heat):
     '''
@@ -54,6 +58,7 @@ def _top_aggregate(heat):
         ret[i] += ret[i - 1] * inds.float()
     return (ret - heat).transpose(1, 0).reshape(shape).transpose(3, 2)
 
+
 def _bottom_aggregate(heat):
     '''
         heat: batchsize x channels x h x w
@@ -68,9 +73,11 @@ def _bottom_aggregate(heat):
         ret[i] += ret[i + 1] * inds.float()
     return (ret - heat).transpose(1, 0).reshape(shape).transpose(3, 2)
 
+
 def _h_aggregate(heat, aggr_weight=0.1):
     return aggr_weight * _left_aggregate(heat) + \
            aggr_weight * _right_aggregate(heat) + heat
+
 
 def _v_aggregate(heat, aggr_weight=0.1):
     return aggr_weight * _top_aggregate(heat) + \
@@ -270,6 +277,7 @@ def agnex_ct_decode(
 
     return detections
 
+
 def exct_decode(
     t_heat, l_heat, b_heat, r_heat, ct_heat, 
     t_regr=None, l_regr=None, b_regr=None, r_regr=None, 
@@ -423,6 +431,7 @@ def exct_decode(
 
     return detections
 
+
 def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
     batch, cat, height, width = heat.size()
     # heat = torch.sigmoid(heat)
@@ -461,6 +470,7 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
       
     return detections
 
+
 def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
     batch, cat, height, width = heat.size()
 
@@ -493,6 +503,7 @@ def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
     detections = torch.cat([bboxes, scores, clses], dim=2)
       
     return detections
+
 
 def multi_pose_decode(
     heat, wh, kps, reg=None, hm_hp=None, hp_offset=None, K=100):

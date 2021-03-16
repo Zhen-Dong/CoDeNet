@@ -23,12 +23,14 @@ _model_factory = {
   'shufflenetv2': get_shufflenetv2_dcn
 }
 
+
 def create_model(arch, heads, head_conv):
   num_layers = int(arch[arch.find('_') + 1:]) if '_' in arch else 0
   arch = arch[:arch.find('_')] if '_' in arch else arch
   get_model = _model_factory[arch]
   model = get_model(num_layers=num_layers, heads=heads, head_conv=head_conv)
   return model
+
 
 def load_model(model, model_path, optimizer=None, resume=False, 
                lr=None, lr_step=None):
@@ -85,6 +87,7 @@ def load_model(model, model_path, optimizer=None, resume=False,
   else:
     return model
 
+
 def save_model(path, epoch, model, optimizer=None):
   if isinstance(model, torch.nn.DataParallel):
     state_dict = model.module.state_dict()
@@ -95,4 +98,3 @@ def save_model(path, epoch, model, optimizer=None):
   if not (optimizer is None):
     data['optimizer'] = optimizer.state_dict()
   torch.save(data, path)
-

@@ -66,6 +66,7 @@ def _neg_loss(pred, gt):
     loss = loss - (pos_loss + neg_loss) / num_pos
   return loss
 
+
 def _not_faster_neg_loss(pred, gt):
     pos_inds = gt.eq(1).float()
     neg_inds = gt.lt(1).float()    
@@ -83,6 +84,7 @@ def _not_faster_neg_loss(pred, gt):
     loss -=  all_loss
     return loss
 
+
 def _slow_reg_loss(regr, gt_regr, mask):
     num  = mask.float().sum()
     mask = mask.unsqueeze(2).expand_as(gt_regr)
@@ -93,6 +95,7 @@ def _slow_reg_loss(regr, gt_regr, mask):
     regr_loss = nn.functional.smooth_l1_loss(regr, gt_regr, size_average=False)
     regr_loss = regr_loss / (num + 1e-4)
     return regr_loss
+
 
 def _reg_loss(regr, gt_regr, mask):
   ''' L1 regression loss
@@ -111,6 +114,7 @@ def _reg_loss(regr, gt_regr, mask):
   regr_loss = regr_loss / (num + 1e-4)
   return regr_loss
 
+
 class FocalLoss(nn.Module):
   '''nn.Module warpper for focal loss'''
   def __init__(self):
@@ -119,6 +123,7 @@ class FocalLoss(nn.Module):
 
   def forward(self, out, target):
     return self.neg_loss(out, target)
+
 
 class RegLoss(nn.Module):
   '''Regression loss for an output tensor
@@ -136,6 +141,7 @@ class RegLoss(nn.Module):
     loss = _reg_loss(pred, target, mask)
     return loss
 
+
 class RegL1Loss(nn.Module):
   def __init__(self):
     super(RegL1Loss, self).__init__()
@@ -147,6 +153,7 @@ class RegL1Loss(nn.Module):
     loss = F.l1_loss(pred * mask, target * mask, size_average=False)
     loss = loss / (mask.sum() + 1e-4)
     return loss
+
 
 class NormRegL1Loss(nn.Module):
   def __init__(self):
@@ -162,6 +169,7 @@ class NormRegL1Loss(nn.Module):
     loss = loss / (mask.sum() + 1e-4)
     return loss
 
+
 class RegWeightedL1Loss(nn.Module):
   def __init__(self):
     super(RegWeightedL1Loss, self).__init__()
@@ -174,6 +182,7 @@ class RegWeightedL1Loss(nn.Module):
     loss = loss / (mask.sum() + 1e-4)
     return loss
 
+
 class L1Loss(nn.Module):
   def __init__(self):
     super(L1Loss, self).__init__()
@@ -184,6 +193,7 @@ class L1Loss(nn.Module):
     loss = F.l1_loss(pred * mask, target * mask, reduction='elementwise_mean')
     return loss
 
+
 class BinRotLoss(nn.Module):
   def __init__(self):
     super(BinRotLoss, self).__init__()
@@ -193,14 +203,17 @@ class BinRotLoss(nn.Module):
     loss = compute_rot_loss(pred, rotbin, rotres, mask)
     return loss
 
+
 def compute_res_loss(output, target):
     return F.smooth_l1_loss(output, target, reduction='elementwise_mean')
+
 
 # TODO: weight
 def compute_bin_loss(output, target, mask):
     mask = mask.expand_as(output)
     output = output * mask.float()
     return F.cross_entropy(output, target, reduction='elementwise_mean')
+
 
 def compute_rot_loss(output, target_bin, target_res, mask):
     # output: (B, 128, 8) [bin1_cls[0], bin1_cls[1], bin1_sin, bin1_cos, 
