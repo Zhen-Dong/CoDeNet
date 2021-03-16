@@ -1,5 +1,4 @@
 import math
-
 import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _pair
@@ -114,14 +113,6 @@ class DeformConvPackDW(DeformConv):
     def __init__(self, *args, **kwargs):
         super(DeformConvPackDW, self).__init__(*args, **kwargs)
 
-        # self.conv_offset = nn.Conv2d(
-        #     self.in_channels,
-        #     self.deformable_groups * 2 * self.kernel_size[0] *
-        #     self.kernel_size[1],
-        #     kernel_size=self.kernel_size,
-        #     stride=_pair(self.stride),
-        #     padding=_pair(self.padding),
-        #     bias=True)
         inp = int(self.in_channels)
         oup = int(self.deformable_groups * 18)
         self.conv_dw = nn.Conv2d(inp, inp, 
@@ -133,7 +124,6 @@ class DeformConvPackDW(DeformConv):
         self.conv_pw.bias.data.zero_()
 
     def forward(self, x):
-        # offset = self.conv_offset(x)
         offset = self.conv_pw(self.conv_dw(x))
         return deform_conv(x, offset, self.weight, self.stride, self.padding,
                            self.dilation, self.groups, self.deformable_groups)
@@ -206,7 +196,6 @@ class ModulatedDeformConvPack(ModulatedDeformConv):
         self.conv_offset_mask.bias.data.zero_()
 
     def forward(self, x):
-        # print(x.shape)
         out = self.conv_offset_mask(x)
         o1, o2, mask = torch.chunk(out, 3, dim=1)
         offset = torch.cat((o1, o2), dim=1)
@@ -294,27 +283,16 @@ class DeformConvWithOffsetScaleBound(nn.Module):
 
 
 class DeformConvWithOffsetScaleBoundPositive(nn.Module):
+    """
+    This is the Co-Designed Deformable Convolution Module used in CoDeNet.
 
+    """
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, dilation=1,
                  groups=1, deformable_groups=1, bias=False, offset_bound=8, hidden_state=64, BN_MOMENTUM=0.1):
         super(DeformConvWithOffsetScaleBoundPositive, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        # self.conv_scale = nn.Conv2d(in_channels, deformable_groups, kernel_size=1, stride=1, padding=0, bias=False)
         self.conv_scale = nn.Conv2d(in_channels, deformable_groups, kernel_size=1, stride=stride, padding=0, bias=True)
-        # self.conv_scale = nn.Conv2d(in_channels, deformable_groups, kernel_size=3, stride=1, padding=1, bias=True)
-        # self.conv_scale = nn.Sequential(
-        #     # pw
-        #     nn.Conv2d(in_channels, hidden_state, 1, 1, 0, bias=False),
-        #     nn.BatchNorm2d(hidden_state, momentum=BN_MOMENTUM),
-        #     nn.ReLU(inplace=True),
-        #     # dw
-        #     nn.Conv2d(hidden_state, hidden_state, 3, 1, 1, groups=hidden_state, bias=False),
-        #     nn.BatchNorm2d(hidden_state, momentum=BN_MOMENTUM),
-        #     # pw-linear
-        #     # nn.Conv2d(hidden_state, deformable_groups, 1, 1, 0, bias=False)
-        #     nn.Conv2d(hidden_state, deformable_groups, 1, 1, 0, bias=True)
-        # )
 
         for m in self.conv_scale.modules():
             if isinstance(m, nn.Conv2d):
@@ -322,41 +300,21 @@ class DeformConvWithOffsetScaleBoundPositive(nn.Module):
                 if m.bias is not None:
                     print("initialize offset bias")
                     nn.init.constant_(m.bias, 1)
-                    # nn.init.constant_(m.bias, 2)
-
-        # if type(self.conv_scale) == nn.Conv2d:
-        #     self.conv_scale.weight.data.zero_()
-        #     if self.conv_scale.bias is not None:
-        #         nn.init.constant_(self.conv_scale.bias.data, 1)
-
-        # self.conv_scale.weight.data.zero_()
-        # nn.init.constant_(self.conv_scale.bias.data, 1)
 
         self.conv_bound = torch.nn.Hardtanh(
             min_val=-offset_bound+1, max_val=offset_bound, inplace=True)
-        # self.conv_bound = torch.nn.Hardtanh(
-        #     min_val=-1, max_val=offset_bound-1, inplace=True)
-        # self.conv_bound = torch.nn.Hardtanh(
-        #     min_val=0, max_val=offset_bound, inplace=True)
 
         self.conv = DeformConv(in_channels, in_channels, kernel_size=kernel_size, stride=stride,
                        padding=padding, dilation=dilation, groups=in_channels, deformable_groups=deformable_groups,
                        bias=bias)
 
-        # if in_channels != out_channels:
-        if True:
+        if in_channels != out_channels:
             self.conv_channel = nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False)
 
             if type(self.conv_channel) == nn.Conv2d:
-                # nn.init.normal_(self.conv_channel.weight, std=0.001)
                 torch.nn.init.kaiming_normal_(self.conv_channel.weight, nonlinearity='relu')
-                # torch.nn.init.xavier_normal_(m.weight.data)
                 if self.conv_channel.bias is not None:
                     nn.init.constant_(self.conv_channel.bias, 0)
-
-        # self.conv = DeformConv(in_channels, out_channels, kernel_size=kernel_size, stride=stride,
-        #                        padding=padding, dilation=dilation, groups=groups, deformable_groups=deformable_groups,
-        #                        bias=bias)
 
         self.anchor_offset = torch.FloatTensor([-1, -1, -1, 0, -1, 1,
                                                 0, -1,  0, 0,  0, 1,
@@ -364,11 +322,9 @@ class DeformConvWithOffsetScaleBoundPositive(nn.Module):
 
     def forward(self, x):
         s = self.conv_bound(self.conv_scale(x))
-        # o = self.anchor_offset.to(x.device) * s
         o = self.anchor_offset.to(x.device) * (s - 1)
-        # o = self.anchor_offset.to(x.device) * (s - 2)
-        # if self.in_channels != self.out_channels:
-        if True:
+
+        if self.in_channels != self.out_channels:
             return self.conv_channel(self.conv(x, o))
         else:
             return self.conv(x, o)
