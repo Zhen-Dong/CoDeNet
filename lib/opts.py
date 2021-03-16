@@ -231,12 +231,21 @@ class opts(object):
                              help='Whether to double the channel.')
     self.parser.add_argument('--maxpool', action='store_true',
                              help='Whether to use maxpool instead of stride 4.')
+
+    # quantization settings
     self.parser.add_argument('--resume-quantize', action='store_true',
                              help='If true, resume a quantized model from checkpoint. '
                                   'Otherwise resume a normal model.')
     self.parser.add_argument('--wt-percentile', action='store_true',
                              help='If true, apply percentile range for weight quantization. '
                                   'Note that this arg should be kept the same for training and testing.')
+    self.parser.add_argument('--act-percentile', action='store_true',
+                             help='If true, apply percentile range for activation quantization. '
+                                  'Note that this arg should be kept the same for training and testing.')
+    self.parser.add_argument('--w-bit', type=int, default=4,
+                             help='The bitwidth for weight quantization.')
+    self.parser.add_argument('--a-bit', type=int, default=8,
+                             help='The bitwidth for activation quantization.')
 
 
   def parse(self, args=''):

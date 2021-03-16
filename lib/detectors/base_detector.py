@@ -27,9 +27,10 @@ class BaseDetector(object):
     self.model = create_model(opt.arch, opt.heads, opt.head_conv)
 
     if opt.resume_quantize:
-      quantize_shufflenetv2_dcn(self.model, quant_conv=4, quant_bn=None, quant_act=8,
+      quantize_shufflenetv2_dcn(self.model, quant_conv=opt.w_bit, quant_bn=None, quant_act=opt.a_bit,
                               wt_quant_mode='symmetric', act_quant_mode='asymmetric',
-                              wt_per_channel=True, wt_percentile=opt.wt_percentile, act_percentile=False, deform_backbone=False,
+                              wt_per_channel=True, wt_percentile=opt.wt_percentile,
+                              act_percentile=opt.act_percentile, deform_backbone=False,
                               w2=opt.w2, maxpool=opt.maxpool)
 
     self.model = load_model(self.model, opt.load_model)

@@ -15,6 +15,7 @@ from trains.train_factory import train_factory
 
 from portable_quantizer import quantize_shufflenetv2_dcn
 
+
 def main(opt):
   torch.manual_seed(opt.seed)
   torch.backends.cudnn.benchmark = False
@@ -39,9 +40,10 @@ def main(opt):
       model, opt.load_model, optimizer, opt.resume, opt.lr, opt.lr_step)
 
   # quantization-aware fine-tuning
-  quantize_shufflenetv2_dcn(model, quant_conv=4, quant_bn=None, quant_act=8,
+  quantize_shufflenetv2_dcn(model, quant_conv=opt.w_bit, quant_bn=None, quant_act=opt.a_bit,
                             wt_quant_mode='symmetric', act_quant_mode='asymmetric',
-                            wt_per_channel=True, wt_percentile=True, act_percentile=False, deform_backbone=False,
+                            wt_per_channel=True, wt_percentile=opt.wt_percentile,
+                            act_percentile=opt.act_percentile, deform_backbone=False,
                             w2=opt.w2, maxpool=opt.maxpool)
 
   Trainer = train_factory[opt.task]

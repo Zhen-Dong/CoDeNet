@@ -19,6 +19,7 @@ from utils.utils import AverageMeter
 from datasets.dataset_factory import dataset_factory
 from detectors.detector_factory import detector_factory
 
+
 class PrefetchDataset(torch.utils.data.Dataset):
   def __init__(self, opt, dataset, pre_process_func):
     self.images = dataset.images
@@ -43,6 +44,7 @@ class PrefetchDataset(torch.utils.data.Dataset):
 
   def __len__(self):
     return len(self.images)
+
 
 def prefetch_test(opt):
   os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
@@ -78,6 +80,7 @@ def prefetch_test(opt):
     bar.next()
   bar.finish()
   dataset.run_eval(results, opt.save_dir)
+
 
 def test(opt):
   os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
