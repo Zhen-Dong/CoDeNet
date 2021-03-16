@@ -86,4 +86,3 @@ class KITTI(data.Dataset):
     os.system('./tools/kitti_eval/evaluate_object_3d_offline ' + \
               '../data/kitti/training/label_val ' + \
               '{}/results/'.format(save_dir))
-    

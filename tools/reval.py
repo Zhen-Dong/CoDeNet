@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 
-# --------------------------------------------------------
-# Fast R-CNN
-# Copyright (c) 2015 Microsoft
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Ross Girshick
-# Modified by Xingyi Zhou
-# --------------------------------------------------------
-
-# Reval = re-eval. Re-evaluate saved detections.
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -23,6 +14,7 @@ import pickle
 import os, argparse
 import numpy as np
 import json
+
 
 def parse_args():
   """

@@ -10,6 +10,7 @@ from .ddd_utils import ddd2locrot
 def get_pred_depth(depth):
   return depth
 
+
 def get_alpha(rot):
   # output: (B, 8) [bin1_cls[0], bin1_cls[1], bin1_sin, bin1_cos, 
   #                 bin2_cls[0], bin2_cls[1], bin2_sin, bin2_cos]
@@ -46,6 +47,7 @@ def ddd_post_process_2d(dets, c, s, opt):
     ret.append(top_preds)
   return ret
 
+
 def ddd_post_process_3d(dets, calibs):
   # dets: batch x max_dets x dim
   # return 1-based class det list
@@ -71,6 +73,7 @@ def ddd_post_process_3d(dets, calibs):
       preds[cls_ind] = np.array(preds[cls_ind], dtype=np.float32)
     ret.append(preds)
   return ret
+
 
 def ddd_post_process(dets, c, s, calibs, opt):
   # dets: batch x max_dets x dim

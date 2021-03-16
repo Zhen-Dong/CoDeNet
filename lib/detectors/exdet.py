@@ -5,7 +5,6 @@ from __future__ import print_function
 import _init_paths
 
 import os
-
 import cv2
 import numpy as np
 from progress.bar import Bar
@@ -19,6 +18,7 @@ from utils.post_process import ctdet_post_process
 from utils.debugger import Debugger
 
 from .base_detector import BaseDetector
+
 
 class ExdetDetector(BaseDetector):
   def __init__(self, opt):

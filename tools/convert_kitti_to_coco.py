@@ -36,9 +36,11 @@ from utils.ddd_utils import draw_box_3d, unproject_2d_to_3d
                      detection, needed for p/r curves, higher is better.
 '''
 
+
 def _bbox_to_coco_bbox(bbox):
   return [(bbox[0]), (bbox[1]),
           (bbox[2] - bbox[0]), (bbox[3] - bbox[1])]
+
 
 def read_clib(calib_path):
   f = open(calib_path, 'r')

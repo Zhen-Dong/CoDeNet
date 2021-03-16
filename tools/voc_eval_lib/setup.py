@@ -1,16 +1,10 @@
-# --------------------------------------------------------
-# Fast R-CNN
-# Copyright (c) 2015 Microsoft
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Ross Girshick
-# --------------------------------------------------------
-
 import os
 from os.path import join as pjoin
 import numpy as np
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
+
 
 def find_in_path(name, path):
     "Find a file in a search path"
@@ -20,6 +14,7 @@ def find_in_path(name, path):
         if os.path.exists(binpath):
             return os.path.abspath(binpath)
     return None
+
 
 def locate_cuda():
     """Locate the CUDA environment on the system
@@ -59,6 +54,7 @@ try:
     numpy_include = np.get_include()
 except AttributeError:
     numpy_include = np.get_numpy_include()
+
 
 def customize_compiler_for_nvcc(self):
     """inject deep into distutils to customize how the dispatch

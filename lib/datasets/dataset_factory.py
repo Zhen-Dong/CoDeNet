@@ -32,4 +32,3 @@ def get_dataset(dataset, task):
   class Dataset(dataset_factory[dataset], _sample_factory[task]):
     pass
   return Dataset
-  

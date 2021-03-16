@@ -1,8 +1,3 @@
-# --------------------------------------------------------
-# Tensorflow Faster R-CNN
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Xinlei Chen
-# --------------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -23,6 +18,7 @@ from model.config import cfg, get_output_dir
 from model.bbox_transform import clip_boxes, bbox_transform_inv
 # from model.nms_wrapper import nms  # need to compile cython nms before import nms
 nms = None  # not needed in pascal evaluation
+
 
 def _get_image_blob(im):
   """Converts an image into a network input.
@@ -58,12 +54,14 @@ def _get_image_blob(im):
 
   return blob, np.array(im_scale_factors)
 
+
 def _get_blobs(im):
   """Convert an image and RoIs within that image into network inputs."""
   blobs = {}
   blobs['data'], im_scale_factors = _get_image_blob(im)
 
   return blobs, im_scale_factors
+
 
 def _clip_boxes(boxes, im_shape):
   """Clip boxes to image boundaries."""
@@ -77,12 +75,14 @@ def _clip_boxes(boxes, im_shape):
   boxes[:, 3::4] = np.minimum(boxes[:, 3::4], im_shape[0] - 1)
   return boxes
 
+
 def _rescale_boxes(boxes, inds, scales):
   """Rescale boxes according to image rescaling."""
   for i in range(boxes.shape[0]):
     boxes[i,:] = boxes[i,:] / scales[int(inds[i])]
 
   return boxes
+
 
 def im_detect(sess, net, im):
   blobs, im_scales = _get_blobs(im)
@@ -106,6 +106,7 @@ def im_detect(sess, net, im):
     pred_boxes = np.tile(boxes, (1, scores.shape[1]))
 
   return scores, pred_boxes
+
 
 def apply_nms(all_boxes, thresh):
   """Apply non-maximum suppression to all predicted boxes output by the
@@ -135,6 +136,7 @@ def apply_nms(all_boxes, thresh):
         continue
       nms_boxes[cls_ind][im_ind] = dets[keep, :].copy()
   return nms_boxes
+
 
 def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0.):
   np.random.seed(cfg.RNG_SEED)

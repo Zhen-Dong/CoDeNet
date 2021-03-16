@@ -1,10 +1,3 @@
-# ------------------------------------------------------------------------------
-# Copyright (c) Microsoft
-# Licensed under the MIT License.
-# Written by Bin Xiao (Bin.Xiao@microsoft.com)
-# Modified by Xingyi Zhou
-# ------------------------------------------------------------------------------
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -13,8 +6,10 @@ import numpy as np
 import cv2
 import random
 
+
 def flip(img):
   return img[:, :, ::-1].copy()  
+
 
 def transform_preds(coords, center, scale, output_size):
     target_coords = np.zeros(coords.shape)
@@ -123,6 +118,7 @@ def gaussian2D(shape, sigma=1):
     h[h < np.finfo(h.dtype).eps * h.max()] = 0
     return h
 
+
 def draw_umich_gaussian(heatmap, center, radius, k=1):
   diameter = 2 * radius + 1
   gaussian = gaussian2D((diameter, diameter), sigma=diameter / 6)
@@ -139,6 +135,7 @@ def draw_umich_gaussian(heatmap, center, radius, k=1):
   if min(masked_gaussian.shape) > 0 and min(masked_heatmap.shape) > 0: # TODO debug
     np.maximum(masked_heatmap, masked_gaussian * k, out=masked_heatmap)
   return heatmap
+
 
 def draw_dense_reg(regmap, heatmap, center, value, radius, is_offset=False):
   diameter = 2 * radius + 1
@@ -195,29 +192,36 @@ def draw_msra_gaussian(heatmap, center, sigma):
     g[g_y[0]:g_y[1], g_x[0]:g_x[1]])
   return heatmap
 
+
 def grayscale(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
 
 def lighting_(data_rng, image, alphastd, eigval, eigvec):
     alpha = data_rng.normal(scale=alphastd, size=(3, ))
     image += np.dot(eigvec, eigval * alpha)
+
 
 def blend_(alpha, image1, image2):
     image1 *= alpha
     image2 *= (1 - alpha)
     image1 += image2
 
+
 def saturation_(data_rng, image, gs, gs_mean, var):
     alpha = 1. + data_rng.uniform(low=-var, high=var)
     blend_(alpha, image, gs[:, :, None])
+
 
 def brightness_(data_rng, image, gs, gs_mean, var):
     alpha = 1. + data_rng.uniform(low=-var, high=var)
     image *= alpha
 
+
 def contrast_(data_rng, image, gs, gs_mean, var):
     alpha = 1. + data_rng.uniform(low=-var, high=var)
     blend_(alpha, image, gs_mean)
+
 
 def color_aug(data_rng, image, eig_val, eig_vec):
     functions = [brightness_, contrast_, saturation_]

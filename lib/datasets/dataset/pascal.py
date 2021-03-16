@@ -10,6 +10,7 @@ import os
 
 import torch.utils.data as data
 
+
 class PascalVOC(data.Dataset):
   num_classes = 20
   default_resolution = [384, 384]

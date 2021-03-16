@@ -10,6 +10,7 @@ import os
 
 import torch.utils.data as data
 
+
 class COCO(data.Dataset):
   num_classes = 80
   default_resolution = [512, 512]

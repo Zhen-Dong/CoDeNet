@@ -21,6 +21,7 @@ from utils.debugger import Debugger
 
 from .base_detector import BaseDetector
 
+
 class MultiPoseDetector(BaseDetector):
   def __init__(self, opt):
     super(MultiPoseDetector, self).__init__(opt)

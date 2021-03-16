@@ -1,10 +1,3 @@
-# --------------------------------------------------------
-# Fast R-CNN
-# Copyright (c) 2015 Microsoft
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Ross Girshick and Xinlei Chen
-# Modified by Xingyi Zhou
-# --------------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -17,6 +10,7 @@ import numpy as np
 import scipy.sparse
 from model.config import cfg
 
+
 def bbox_overlaps(box1, box2):
   area1 = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
   area2 = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
@@ -24,7 +18,8 @@ def bbox_overlaps(box1, box2):
           max(min(box1[3], box2[3]) - max(box1[1], box2[1]) + 1, 0)
   iou = 1.0 * inter / (area1 + area2 - inter)
   return iou
- 
+
+
 class imdb(object):
   """Image database."""
 

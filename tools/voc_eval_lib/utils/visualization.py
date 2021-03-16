@@ -1,8 +1,3 @@
-# --------------------------------------------------------
-# Tensorflow Faster R-CNN
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Xinlei Chen
-# --------------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -47,6 +42,7 @@ try:
 except IOError:
   FONT = ImageFont.load_default()
 
+
 def _draw_single_box(image, xmin, ymin, xmax, ymax, display_str, font, color='black', thickness=4):
   draw = ImageDraw.Draw(image)
   (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
@@ -67,6 +63,7 @@ def _draw_single_box(image, xmin, ymin, xmax, ymax, display_str, font, color='bl
       font=font)
 
   return image
+
 
 def draw_bounding_boxes(image, gt_boxes, im_info):
   num_boxes = gt_boxes.shape[0]

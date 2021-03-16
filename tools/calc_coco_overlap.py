@@ -29,6 +29,7 @@ class_name = [
     'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
+
 def iou(box1, box2):
   area1 = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
   area2 = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
@@ -36,6 +37,7 @@ def iou(box1, box2):
           max(min(box1[3], box2[3]) - max(box1[1], box2[1]) + 1, 0)
   iou = 1.0 * inter / (area1 + area2 - inter)
   return iou
+
 
 def generate_anchors(
     stride=16, sizes=(32, 64, 128, 256, 512), aspect_ratios=(0.5, 1, 2)
@@ -114,6 +116,7 @@ def _coco_box_to_bbox(box):
                     dtype=np.float32)
     return bbox
 
+
 def count_agnostic(split):
   coco = COCO.COCO(ANN_PATH + ANN_FILES[split])
   images = coco.getImgIds()
@@ -164,6 +167,7 @@ def count(split):
             cv2.waitKey()
       centers.append(center)
   print('find {} collisions of {} objects!'.format(cnt, obj))
+
 
 def count_iou(split):
   coco = COCO.COCO(ANN_PATH + ANN_FILES[split])
@@ -309,7 +313,6 @@ def count_size(split):
       cnt += 1
   print('cnt', cnt)
   print('s, m, l ', cnt_s, cnt_m, cnt_l)
- 
 
 # count_iou('train')
 # count_anchor('train')

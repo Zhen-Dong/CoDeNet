@@ -1,8 +1,3 @@
-# --------------------------------------------------------
-# Fast/er R-CNN
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Bharath Hariharan
-# --------------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -11,6 +6,7 @@ import xml.etree.ElementTree as ET
 import os
 import pickle
 import numpy as np
+
 
 def parse_rec(filename):
   """ Parse a PASCAL VOC xml file """

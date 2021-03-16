@@ -5,6 +5,7 @@ from __future__ import print_function
 import numpy as np
 import cv2
 
+
 def compute_box_3d(dim, location, rotation_y):
   # dim: 3
   # location: 3
@@ -22,6 +23,7 @@ def compute_box_3d(dim, location, rotation_y):
   corners_3d = corners_3d + np.array(location, dtype=np.float32).reshape(3, 1)
   return corners_3d.transpose(1, 0)
 
+
 def project_to_image(pts_3d, P):
   # pts_3d: n x 3
   # P: 3 x 4
@@ -32,6 +34,7 @@ def project_to_image(pts_3d, P):
   pts_2d = pts_2d[:, :2] / pts_2d[:, 2:]
   # import pdb; pdb.set_trace()
   return pts_2d
+
 
 def compute_orientation_3d(dim, location, rotation_y):
   # dim: 3
@@ -45,6 +48,7 @@ def compute_orientation_3d(dim, location, rotation_y):
   orientation_3d = orientation_3d + \
                    np.array(location, dtype=np.float32).reshape(3, 1)
   return orientation_3d.transpose(1, 0)
+
 
 def draw_box_3d(image, corners, c=(0, 0, 255)):
   face_idx = [[0,1,5,4],
@@ -63,6 +67,7 @@ def draw_box_3d(image, corners, c=(0, 0, 255)):
                (corners[f[3], 0], corners[f[3], 1]), c, 1, lineType=cv2.LINE_AA)
   return image
 
+
 def unproject_2d_to_3d(pt_2d, depth, P):
   # pts_2d: 2
   # depth: 1
@@ -73,6 +78,7 @@ def unproject_2d_to_3d(pt_2d, depth, P):
   y = (pt_2d[1] * depth - P[1, 3] - P[1, 2] * z) / P[1, 1]
   pt_3d = np.array([x, y, z], dtype=np.float32)
   return pt_3d
+
 
 def alpha2rot_y(alpha, x, cx, fx):
     """
@@ -87,6 +93,7 @@ def alpha2rot_y(alpha, x, cx, fx):
     if rot_y < -np.pi:
       rot_y += 2 * np.pi
     return rot_y
+
 
 def rot_y2alpha(rot_y, x, cx, fx):
     """
@@ -109,6 +116,7 @@ def ddd2locrot(center, alpha, dim, depth, calib):
   locations[1] += dim[0] / 2
   rotation_y = alpha2rot_y(alpha, center[0], calib[0, 2], calib[0, 0])
   return locations, rotation_y
+
 
 def project_3d_bbox(location, dim, rotation_y, calib):
   box_3d = compute_box_3d(dim, location, rotation_y)

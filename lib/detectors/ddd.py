@@ -8,7 +8,6 @@ from progress.bar import Bar
 import time
 import torch
 
-
 from models.decode import ddd_decode
 from models.utils import flip_tensor
 from utils.image import get_affine_transform
@@ -18,6 +17,7 @@ from utils.ddd_utils import compute_box_3d, project_to_image, alpha2rot_y
 from utils.ddd_utils import draw_box_3d, unproject_2d_to_3d
 
 from .base_detector import BaseDetector
+
 
 class DddDetector(BaseDetector):
   def __init__(self, opt):
