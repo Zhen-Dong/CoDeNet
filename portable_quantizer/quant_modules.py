@@ -18,6 +18,14 @@ sys.path.append('/rscratch/zhendong/yaohuic/CenterNet/src/lib/models/')
 from external.functions.dcn_deform_conv import deform_conv
 
 
+def channel_shuffle(x, G):
+    N, C, H, W = x.size()
+    x = x.view(N, G, C // G, H, W)
+    x = torch.transpose(x, 1, 2).contiguous()
+    x = x.view(N, C, H, W)
+    return x
+
+
 ## basic quantization modules
 class QuantLinear(_linear):
     def __init__(self,
@@ -1005,7 +1013,6 @@ class QuantBaseNode(Module):
 
     def forward(self, x):
         # forward using the quantized modules
-        from models.networks.sfl_dcn import channel_shuffle
         if self.stride == 1:
             split = x.shape[1]//2
             x1 = x[:, :split, :, :]

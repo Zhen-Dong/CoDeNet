@@ -5,14 +5,18 @@ from ..quant_modules import QuantAct, Quant_Conv2d, QuantBnConv2d, QuantBaseNode
 
 
 def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_mode, act_quant_mode, wt_per_channel,
-                              wt_percentile, act_percentile, deform_backbone):
+                              wt_percentile, act_percentile, deform_backbone, w2=False, maxpool=False):
     # quantize DCN with ShuffleNetv2 (pytorchcv version) as backbone
     # quantize each components in DCN including backbone and heads.
     layer0 = getattr(model, 'layer0')
     conv, bn, activ = layer0[0], layer0[1], layer0[2]
     quant_layer0 = QuantBnConv2d(8, quant_mode=wt_quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
     quant_layer0.set_param(conv, bn)
-    quant_act0 = nn.Sequential(*[activ, QuantAct(quant_act, quant_mode="asymmetric", percentile=act_percentile)])
+
+    if maxpool:
+        quant_act0 = nn.Sequential(*[activ, QuantAct(quant_act, quant_mode="asymmetric", percentile=act_percentile), layer0[3]])
+    else:
+        quant_act0 = nn.Sequential(*[activ, QuantAct(quant_act, quant_mode="asymmetric", percentile=act_percentile)])
     setattr(model, 'layer0', nn.Sequential(*[quant_layer0, quant_act0]))
 
     for layer_num in range(1, 4):
@@ -45,6 +49,7 @@ def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_m
         quant_head = QuantDepthwiseNode(quant_conv, quant_act, act_percentile=act_percentile,
                                         wt_quant_mode=wt_quant_mode, act_quant_mode=act_quant_mode,
                                         per_channel=wt_per_channel, weight_percentile=wt_percentile)
+        # quant_head = Quant_Conv2d(weight_bit=quant_conv, quant_mode=quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
         quant_head.set_param(head_mod)
         setattr(model, head, quant_head)
 
@@ -61,4 +66,3 @@ def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_m
         deform_mods.append(quant_deform_act)
         deform_mods.append(deform[4*deform_num+3])
     setattr(model, 'deconv_layers', nn.Sequential(*deform_mods))
-
