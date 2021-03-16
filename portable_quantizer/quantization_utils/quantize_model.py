@@ -4,54 +4,6 @@ from ..quant_modules import QuantAct, Quant_Conv2d, QuantBnConv2d, QuantBaseNode
     QuantDepthwiseNode, QuantDeformConvWithOffsetScaleBoundPositive, QuantBaseNodeDeform
 
 
-def mix_quantize_model(model, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile, prefix, config):
-    if type(model) == nn.Conv2d:
-        if config[prefix] is None:
-            return model
-        quant_mod = Quant_Conv2d(weight_bit=config[prefix], quant_mode=quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
-        quant_mod.set_param(model)
-        return quant_mod
-    elif type(model) == nn.Sequential:
-        mods = []
-        if prefix != '':
-            prefix += '.'
-        for n, m in model.named_children():
-            mods.append(quantize_model(m, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile, prefix + n, config))
-        return nn.Sequential(*mods)
-    else:
-        if prefix != '':
-            prefix += '.'
-        for attr in dir(model):
-            mod = getattr(model, attr)
-            if isinstance(mod, nn.Module) and 'norm' not in attr:
-                setattr(model, attr, quantize_model(mod, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile, prefix + attr, config))
-        return model
-
-
-def quantize_model(model, quant_conv, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile):
-    if type(model) == nn.Conv2d:
-        quant_mod = Quant_Conv2d(weight_bit=quant_conv, quant_mode=quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
-        quant_mod.set_param(model)
-        return quant_mod
-    elif type(model) == nn.Sequential:
-        mods = []
-        for n, m in model.named_children():
-            mods.append(quantize_model(m, quant_conv, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile))
-        return nn.Sequential(*mods)
-    else:
-        for attr in dir(model):
-            mod = getattr(model, attr)
-            if isinstance(mod, nn.Module) and 'norm' not in attr:
-                setattr(model, attr, quantize_model(mod, quant_conv, quant_act, quant_mode, wt_per_channel, wt_percentile, act_percentile))
-        return model
-
-
-def list_model_parameters(model):
-    conv_names = [n for n, p in model.named_modules() if isinstance(p, nn.Conv2d)]
-    relu_names = [n for n, p in model.named_modules() if isinstance(p, nn.ReLU)]
-    return conv_names, relu_names
-
-
 def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_mode, act_quant_mode, wt_per_channel,
                               wt_percentile, act_percentile, deform_backbone):
     # quantize DCN with ShuffleNetv2 (pytorchcv version) as backbone

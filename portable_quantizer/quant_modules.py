@@ -1356,28 +1356,3 @@ class QuantHeadNode(Module):
         y = channel_shuffle(y, 2)
         return y
 
-
-# class QuantDeformBnConv2d(QuantBnConv2d):
-#     # quantize DeformConv with BN
-#
-#     def set_param(self, deform_conv, bn):
-#         super(QuantDeformBnConv2d, self).set_param(deform_conv, bn)
-#         self.deformable_groups = deform_conv.deformable_groups
-#
-#     def fake_forward(self, x, offset):
-#         activation = deform_conv(x, offset, self.weight, self.stride, self.padding, self.dilation, self.groups, self.deformable_groups)
-#         if self.bias is not None:
-#             activation += self.bias
-#         return activation
-#
-#     def forward(self, x, offset):
-#         # I cannot recall why this part looks like this
-#         # It seems it won't work when running_stat == False
-#         if self.running_stat:
-#             tmp_activation = self.fake_forward(x, offset).detach()
-#         else:
-#             tmp_activation = None
-#         weight, bias = self.quantize_weight(tmp_activation)
-#         bias.unsqueeze_(0).unsqueeze_(-1).unsqueeze_(-1)
-#         return deform_conv(x, offset, weight, self.stride, self.padding, self.dilation, self.groups, self.deformable_groups) + bias
-
