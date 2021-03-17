@@ -13,19 +13,10 @@ from torch.nn import Linear as _linear
 from torch.nn import Embedding as _Embedding
 from torch.nn import Module, Parameter
 from .quantization_utils.quant_utils import *
-# from ..lib.models.external.functions.dcn_deform_conv import deform_conv
 import sys
-sys.path.append('../../lib/models/')
-# sys.path.append('/rscratch/zhendong/yaohuic/CenterNet/src/lib/models/')
-from external.functions.dcn_deform_conv import deform_conv
-
-## Utils
-def channel_shuffle(x, G):
-    N, C, H, W = x.size()
-    x = x.view(N, G, C // G, H, W)
-    x = torch.transpose(x, 1, 2).contiguous()
-    x = x.view(N, C, H, W)
-    return x
+sys.path.append('../')
+from lib.models.external.functions.dcn_deform_conv import deform_conv
+from lib.models.networks.shufflenetv2_dcn import channel_shuffle
 
 
 ## Basic Quantization Modules
