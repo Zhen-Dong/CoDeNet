@@ -6,8 +6,23 @@ from ..quant_modules import QuantAct, Quant_Conv2d, QuantBnConv2d, QuantBaseNode
 
 def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_mode, act_quant_mode, wt_per_channel,
                               wt_percentile, act_percentile, deform_backbone, w2=False, maxpool=False):
-    # quantize DCN with ShuffleNetv2 (pytorchcv version) as backbone
-    # quantize each components in DCN including backbone and heads.
+    """
+    quantize DCN with ShuffleNetv2 (PyTorchCV version) as backbone.
+
+    model: the model to be quantized
+    quant_conv: bitwidth for weight quantization
+    quant_bn: bitwidth for bn quantization
+    quant_act: bitwidth for activation quantization
+    wt_quant_mode: symmetric or asymmetric mode for weight quantization
+    act_quant_mode: symmetric or asymmetric mode for weight quantization
+    wt_per_channel: whether to use channel-wise for weight quantization
+    wt_percentile: whether to use percentile mode to determine weight quantization range
+    act_percentile: whether to use percentile mode to determine activation quantization range
+    deform_backbone: whether to use deformable convolution inside the backbone
+    w2: if true, increase the channel number of the backbone by 2 times
+    maxpool: if true, use stride 2 + maxpool for layer0, otherwise use stride 4
+    
+    """
     layer0 = getattr(model, 'layer0')
     conv, bn, activ = layer0[0], layer0[1], layer0[2]
     quant_layer0 = QuantBnConv2d(8, quant_mode=wt_quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
@@ -49,7 +64,6 @@ def quantize_shufflenetv2_dcn(model, quant_conv, quant_bn, quant_act, wt_quant_m
         quant_head = QuantDepthwiseNode(quant_conv, quant_act, act_percentile=act_percentile,
                                         wt_quant_mode=wt_quant_mode, act_quant_mode=act_quant_mode,
                                         per_channel=wt_per_channel, weight_percentile=wt_percentile)
-        # quant_head = Quant_Conv2d(weight_bit=quant_conv, quant_mode=quant_mode, per_channel=wt_per_channel, weight_percentile=wt_percentile)
         quant_head.set_param(head_mod)
         setattr(model, head, quant_head)
 
