@@ -8,14 +8,14 @@ It is based on CenterNet with co-designed deformable convolution and an efficien
 
 ## Main Results
 These are our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf).
-|Detector	 |Resolution |DownSample	 |W-bit|A-bit|Model Size	|MACs	|Framerate| AP50   |
-|------------|-----------|---------------|-------|-----------|--------------|-------|---------|--------|		
-|Tiny-YOLO				 |416x416	|MaxPool 		|32	|32		|60.5MB 	   |3.49G   | NA   | 57.1	|
-|CoDeNet1x(config a)	 |256x256	|Stride4		|4	|8		|0.76MB 	   |0.29G   |32.2  | 51.1	|
-|CoDeNet1x(config b)	 |256x256	|S2+MaxPool     |4	|8		|0.76MB	       |0.29G   |26.9  | 55.1	|
-|CoDeNet1x(config c)	 |512x512	|Stride4		|4	|8		|0.76MB	       |1.14G   |9.3   | 61.7	|
-|CoDeNet1x(config d)	 |512x512	|Stride4		|4	|8		|2.90MB	       |3.54G   |5.2   | 67.1	|
-|CoDeNet1x(config e)	 |512x512	|S2+MaxPool     |4	|8		|2.90MB	       |3.58G   |4.6   | 69.7	|
+|Detector	 |Resolution |DownSample	 |W/A-bit    |Model Size	|MACs	|Framerate| AP50   |
+|------------|-----------|---------------|-----------|--------------|-------|---------|--------|		
+|Tiny-YOLO				 |416x416	|MaxPool 		|W32A32		|60.5MB 	   |3.49G   | NA   | 57.1	|
+|CoDeNet1x(config a)	 |256x256	|Stride4		|W4A8		|0.76MB 	   |0.29G   |32.2  | 51.1	|
+|CoDeNet1x(config b)	 |256x256	|S2+MaxPool     |W4A8		|0.76MB	       |0.29G   |26.9  | 55.1	|
+|CoDeNet1x(config c)	 |512x512	|Stride4		|W4A8		|0.76MB	       |1.14G   |9.3   | 61.7	|
+|CoDeNet1x(config d)	 |512x512	|Stride4		|W4A8		|2.90MB	       |3.54G   |5.2   | 67.1	|
+|CoDeNet1x(config e)	 |512x512	|S2+MaxPool     |W4A8		|2.90MB	       |3.58G   |4.6   | 69.7	|
 
 These are our main results on Microsoft COCO dataset, taken from Table 4 in [our paper](https://arxiv.org/pdf/2006.08357.pdf).
 |Detector	 |Weights    |Activations    |Model Size	|MACs	| AP   | AP50 | AP75 | APs | APm | APl
