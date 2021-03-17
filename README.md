@@ -1,21 +1,21 @@
 # CoDeNet
-CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs (FPGA 2021 Oral) \
+CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs. (FPGA 2021 Oral) \
 This is the official implementation for CoDeNet, including training/testing/quantization codes and [model zoo]().
 
 ## Introduction
 CoDeNet is an efficient object detection model on PyTorch, with SOTA performance on Pascal VOC and Microsoft COCO datasets under efficient setting.
-It is based on CenterNet with co-designed deformable convolution and an efficient network architecture.
+It is based on CenterNet with co-designed deformable convolution and an efficient network architecture. It can run 27fps on an Ultra96 (ZU3EG) FPGA with 55.1 AP50 on Pascal VOC.
 
 ## Main Results
 This is our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
-|Detector	 |Resolution	|DownSample		|Weights|Activations|Model Size	   |MACs	  |AP50	|
-|------------|-----------|---------------|-------|-----------|--------------|-------|---------|		
-|Tiny-YOLO				|416x416	|MaxPool 		|32-bit	|32-bit		|60.5 MB 	   |3.49 G   |57.1	|
-|CoDeNet1x (config a)	|256x256	|Stride4		|4-bit	|8-bit		|0.76 MB 	   |0.29 G   |51.1	|
-|CoDeNet1x (config b)	|256x256	|Stride2+MaxPool|4-bit	|8-bit		|0.76 MB	   |0.29 G   |55.1	|
-|CoDeNet1x (config c)	|512x512	|Stride4		|4-bit	|8-bit		|0.76 MB	   |1.14 G   |61.7	|
-|CoDeNet1x (config d)	|512x512	|Stride4		|4-bit	|8-bit		|2.90 MB	   |3.54 G   |67.1	|
-|CoDeNet1x (config e)	|512x512	|Stride2+MaxPool|4-bit	|8-bit		|2.90 MB	   |3.58 G   |69.7	|
+|Detector	 |Resolution	|DownSample	 |Weights|Activations|Model Size	|MACs(G)	| Framerate   | AP50 |
+|------------|-----------|---------------|-------|-----------|--------------|-------|---------|--------|		
+|Tiny-YOLO				 |416x416	|MaxPool 		|32-bit	|32-bit		|60.5 MB 	   |3.49   | NA   | 57.1	|
+|CoDeNet1x (config a)	 |256x256	|Stride4		|4-bit	|8-bit		|0.76 MB 	   |0.29   |32.2  | 51.1	|
+|CoDeNet1x (config b)	 |256x256	|Stride2+MaxPool|4-bit	|8-bit		|0.76 MB	   |0.29   |26.9  | 55.1	|
+|CoDeNet1x (config c)	 |512x512	|Stride4		|4-bit	|8-bit		|0.76 MB	   |1.14   |9.3   | 61.7	|
+|CoDeNet1x (config d)	 |512x512	|Stride4		|4-bit	|8-bit		|2.90 MB	   |3.54   |5.2   | 67.1	|
+|CoDeNet1x (config e)	 |512x512	|Stride2+MaxPool|4-bit	|8-bit		|2.90 MB	   |3.58   |4.6   | 69.7	|
 
 ## Installation
 1. First make a directory for CoDeNet, clone this repo and rename it `src`
