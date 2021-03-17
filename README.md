@@ -1,21 +1,30 @@
 # CoDeNet
 CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs. (FPGA 2021 Oral) \
-This is the official implementation for CoDeNet, including training/testing/quantization codes and [model zoo]().
+This is the official implementation for CoDeNet, including training/testing/quantization codes and model zoo.
 
 ## Introduction
-CoDeNet is an efficient object detection model on PyTorch, with SOTA performance on Pascal VOC and Microsoft COCO datasets under efficient setting.
+CoDeNet is an efficient object detection model on PyTorch, with SOTA performance on Pascal VOC and Microsoft COCO datasets under efficient settings.
 It is based on CenterNet with co-designed deformable convolution and an efficient network architecture. It can run 27fps on an Ultra96 (ZU3EG) FPGA with 55.1 AP50 on Pascal VOC.
 
 ## Main Results
-This is our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
-|Detector	 |Resolution	|DownSample	 |Weights|Activations|Model Size	|MACs(G)	| Framerate   | AP50 |
+These are our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
+|Detector	 |Resolution |DownSample	 |Weights|Activations|Model Size	|MACs	|Framerate| AP50   |
 |------------|-----------|---------------|-------|-----------|--------------|-------|---------|--------|		
-|Tiny-YOLO				 |416x416	|MaxPool 		|32-bit	|32-bit		|60.5 MB 	   |3.49   | NA   | 57.1	|
-|CoDeNet1x (config a)	 |256x256	|Stride4		|4-bit	|8-bit		|0.76 MB 	   |0.29   |32.2  | 51.1	|
-|CoDeNet1x (config b)	 |256x256	|Stride2+MaxPool|4-bit	|8-bit		|0.76 MB	   |0.29   |26.9  | 55.1	|
-|CoDeNet1x (config c)	 |512x512	|Stride4		|4-bit	|8-bit		|0.76 MB	   |1.14   |9.3   | 61.7	|
-|CoDeNet1x (config d)	 |512x512	|Stride4		|4-bit	|8-bit		|2.90 MB	   |3.54   |5.2   | 67.1	|
-|CoDeNet1x (config e)	 |512x512	|Stride2+MaxPool|4-bit	|8-bit		|2.90 MB	   |3.58   |4.6   | 69.7	|
+|Tiny-YOLO				 |416x416	|MaxPool 		|32bit	|32bit		|60.5 MB 	   |3.49G   | NA   | 57.1	|
+|CoDeNet1x (config a)	 |256x256	|Stride4		|4bit	|8bit		|0.76 MB 	   |0.29G   |32.2  | 51.1	|
+|CoDeNet1x (config b)	 |256x256	|Stride2+MaxPool|4bit	|8bit		|0.76 MB	   |0.29G   |26.9  | 55.1	|
+|CoDeNet1x (config c)	 |512x512	|Stride4		|4bit	|8bit		|0.76 MB	   |1.14G   |9.3   | 61.7	|
+|CoDeNet1x (config d)	 |512x512	|Stride4		|4bit	|8bit		|2.90 MB	   |3.54G   |5.2   | 67.1	|
+|CoDeNet1x (config e)	 |512x512	|Stride2+MaxPool|4bit	|8bit		|2.90 MB	   |3.58G   |4.6   | 69.7	|
+
+These are our main results on Microsoft COCO dataset, taken from Table 4 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
+|Detector	 |Weights    |Activations    |Model Size	|MACs	| AP   | AP50 | AP75 | APs | APm | APl
+|------------|-----------|---------------|-------|-----------|--------------|-------|---------|-----------|--------|-------|
+|CoDeNet1x   |32bit	     |32bit		|6.07 MB 	   |1.24G   |22.2   | 38.3	| 22.4  | 5.6 | 22.3 | 38.0 |
+|CoDeNet1x   |4bit	     |8bit		|0.76 MB	   |1.24G   |18.8   | 33.9	| 18.7  | 4.6 | 19.2 | 32.2 |
+|CoDeNet2x   |32bit	     |32bit		|23.4 MB	   |4.41G   |26.1   | 43.3	| 26.8  | 7.0 | 27.9 | 43.5 |
+|CoDeNet2x	 |4bit	     |8bit		|2.93 MB	   |4.41G   |21.0   | 36.7	| 21.0  | 5.8 | 22.5 | 35.7 |
+
 
 ## Installation
 1. First make a directory for CoDeNet, clone this repo and rename it `src`
