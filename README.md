@@ -1,8 +1,11 @@
 # CoDeNet
-This is the official implementation for CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs (FPGA 2021 Oral)
+CoDeNet: Efficient Deployment of Input-Adaptive Object Detection on Embedded FPGAs (FPGA 2021 Oral) \
+This is the official implementation for CoDeNet, including training/testing/quantization codes and [model zoo]().
 
 ## Introduction
-CoDeNet is an object detection framework with deformable convolution designed for efficient deployment on FPGAs.
+CoDeNet is an efficient object detection model on PyTorch, with SOTA performance on Pascal VOC and Microsoft COCO datasets under efficient setting.
+It is based on CenterNet with co-designed deformable convolution and an efficient network architecture.
+
 ## Main Results
 This is our main results on Pascal VOC dataset, taken from Table 3 in [our paper](https://arxiv.org/pdf/2006.08357.pdf)
 |Detector	 |Resolution	|DownSample		|Weights|Activations|Model Size	   |MACs	  |AP50	|
@@ -13,10 +16,8 @@ This is our main results on Pascal VOC dataset, taken from Table 3 in [our paper
 |CoDeNet1x (config c)	|512x512	|Stride4		|4-bit	|8-bit		|0.76 MB	   |1.14 G   |61.7	|
 |CoDeNet1x (config d)	|512x512	|Stride4		|4-bit	|8-bit		|2.90 MB	   |3.54 G   |67.1	|
 |CoDeNet1x (config e)	|512x512	|Stride2+MaxPool|4-bit	|8-bit		|2.90 MB	   |3.58 G   |69.7	|
-## Environment
-The code is developed using python 3.6. The results are produced on Ultra96 and also verified on NVIDIA K80 GPU cards. Other platforms or GPU cards are not fully tested.
-## Quick Start
-### Installation
+
+## Installation
 1. First make a directory for CoDeNet, clone this repo and rename it `src`
 ```
 mkdir CoDeNet; cd CoDeNet
@@ -72,7 +73,7 @@ CoDeNet
        `-- VOCdevkit
 ```
 
-### Training and Testing
+## Quick Start
 <!-- Note: quantized model weights name problem? -->
 For testing, use the pretrained models we provide for 5 configurations.
 To test with config a:
@@ -103,7 +104,6 @@ and to train the quantized model, run
 ```
 python quant_main.py ctdet --arch shufflenetv2 --exp_id coco_shufflenetv2_512_1 --head_conv 64 --lr 5e-4 --batch_size 128 --input_res 512 --num_epochs 270 --lr_step 180,210 --gpu 12,13,14,15 --resume
 ```
-<!-- Please double check quantized training command -->
+
 ## License
 CoDeNet is released under the [MIT license](https://github.com/Zhen-Dong/CoDeNet/blob/main/LICENSE).
-<!-- The license should be applied -->
