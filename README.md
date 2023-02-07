@@ -116,4 +116,6 @@ python quant_main.py ctdet --arch shufflenetv2 --exp_id pascal_shufflenetv2_512_
 ```
 
 ## License
+THIS SOFTWARE WAS DEPOSITED IN THE BAIR OPEN RESEARCH COMMONS REPOSITORY ON FEB 1, 2023.
+
 CoDeNet is released under the [MIT license](https://github.com/Zhen-Dong/CoDeNet/blob/main/LICENSE).
